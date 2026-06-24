@@ -1146,7 +1146,7 @@ async function radarAI(id){
 function claimTopic(id){
   const tp=Store.data.radar.topics.find(x=>x.id===id); if(!tp) return;
   tp.status='已领用';
-  const dr={id:uid(), title:tp.title, content:'选题：'+tp.title+'\n切角：'+(tp.angles.join('；')||'待定')+'\n\n', topicId:tp.id, stage:'草稿', doneD:'', pub:{gz:'',xhs:'',dy:''}};
+  const dr={id:uid(), title:tp.title, content:'选题：'+tp.title+'\n切角：'+(tp.angles.join('；')||'待定')+'\n\n', topicId:tp.id, stage:'草稿', doneD:'', pub:{gz:'',xhs:'',dy:''}, review:{status:'none',issues:[]}, locked:false};
   Store.data.studio.drafts.unshift(dr);
   editId=dr.id;
   UI.go('8');
@@ -1186,16 +1186,18 @@ function r8(){
     ${ed.locked?`<div class="acts" style="margin-top:10px">
       <span class="tag green" style="padding:6px 12px">已过审锁定 · 去发布矩阵发它</span>
       <button class="btn sm" onclick="unlockEdit('${ed.id}')">解锁修改 · 🔔−2</button>
+      <button class="btn sm" onclick="gzhFormat('${ed.id}',this)" title="复制正文并打开公众号排版器">排版公众号 ↗</button>
       <button class="btn sm ghost" onclick="editId='';refresh()">收起</button>
     </div>`:`<div class="acts" style="margin-top:10px">
       <button class="btn sm pri" onclick="saveDraft()">保存</button>
       <button class="btn sm red" onclick="reviewAI('${ed.id}')" ${Busy['rv'+ed.id]?'disabled':''}>${Busy['rv'+ed.id]?'审稿中…':'送审 · 60分绿灯'}</button>
       <button class="btn sm bell" onclick="draftAI('${ed.id}')" ${Busy['dr'+ed.id]?'disabled':''}>${Busy['dr'+ed.id]?'AI 写作中…':'AI 生成初稿框架'}</button>
       <button class="btn sm" onclick="xhsAI('${ed.id}')" ${Busy['xh'+ed.id]?'disabled':''}>${Busy['xh'+ed.id]?'改写中…':'改写小红书版'}</button>
+      <button class="btn sm" onclick="gzhFormat('${ed.id}',this)" title="复制正文并打开公众号排版器">排版公众号 ↗</button>
       <button class="btn sm ghost" onclick="editId='';refresh()">收起</button>
     </div>`}
   </div>`:''}
-  <div class="card"><h3>发布矩阵 <span style="font-weight:400;color:var(--ink3)">— 点格子切换：未发 → 今天已发 → 不适用</span></h3>
+  <div class="card"><h3>发布矩阵 <span style="font-weight:400;color:var(--ink3)">— 点格子切换：未发 → 今天已发 → 不适用</span> <button class="btn sm ghost" style="float:right;margin-top:-4px" onclick="window.open('https://yishu5.github.io/GZHcomposing/','_blank')">公众号排版器 ↗</button></h3>
     <div class="mrow mhead"><div class="mtitle">稿件</div>${PLAT.map(p=>'<div class="mcell hd">'+p.n+'</div>').join('')}</div>
     ${mrows||'<div class="empty">还没有成稿。</div>'}
   </div>`;
@@ -1203,7 +1205,7 @@ function r8(){
 function addDraft(){
   const i=document.getElementById('ndr');
   if(!i.value.trim()){ i.focus(); return; }
-  const dr={id:uid(), title:i.value.trim(), content:'', topicId:'', stage:'草稿', doneD:'', pub:{gz:'',xhs:'',dy:''}};
+  const dr={id:uid(), title:i.value.trim(), content:'', topicId:'', stage:'草稿', doneD:'', pub:{gz:'',xhs:'',dy:''}, review:{status:'none',issues:[]}, locked:false};
   Store.data.studio.drafts.unshift(dr); editId=dr.id; refresh();
 }
 function saveDraft(){
@@ -1211,6 +1213,14 @@ function saveDraft(){
   if(ed&&t){ ed.content=t.value; refresh(); }
 }
 function draftDone(id){ const d=Store.data.studio.drafts.find(x=>x.id===id); if(d){ d.stage='成稿'; d.doneD=T; refresh(); } }
+/* 复制正文并打开公众号排版器（意疏的 GZHcomposing），过去 Ctrl+V 即可排版 */
+function gzhFormat(id, btn){
+  const d=Store.data.studio.drafts.find(x=>x.id===id); if(!d) return;
+  window.open('https://yishu5.github.io/GZHcomposing/','_blank');
+  if(navigator.clipboard) navigator.clipboard.writeText(d.content||'').then(()=>{
+    if(btn){ const o=btn.innerHTML; btn.innerHTML='已复制 ✓ 去粘贴'; setTimeout(()=>{btn.innerHTML=o},1600); }
+  }).catch(()=>{});
+}
 function delDraft(id){ if(!confirm('删除这篇稿子？'))return; Store.data.studio.drafts=Store.data.studio.drafts.filter(d=>d.id!==id); if(editId===id)editId=''; refresh(); }
 function cyclePub(id,k){
   const d=Store.data.studio.drafts.find(x=>x.id===id); if(!d) return;
