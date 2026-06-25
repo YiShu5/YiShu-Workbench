@@ -453,11 +453,7 @@ function aiParse(t){ if(!t) return null; try{ return JSON.parse(t.replace(/```js
 
 function defaultData(){ return {
     tasks: [],
-    gate: { date:'', verdicts:{}, streak:0, bells:0, openDays:[], rewards:[], history:[], focus:[
-      {id:uid(), text:'腾讯云 7 月中旬征文 · 投稿', note:'P0 · 截止 7 月中旬', done:false},
-      {id:uid(), text:'整理老师上课课件', note:'P0', done:false},
-      {id:uid(), text:'整理课堂笔记', note:'P0', done:false},
-    ] },
+    gate: { date:'', verdicts:{}, streak:0, bells:0, openDays:[], rewards:[], history:[], focus:[] },
     side: { projects: [], ledger: [] },
     people: { contacts: [], logs: [] },
     collect: { items: [] },
