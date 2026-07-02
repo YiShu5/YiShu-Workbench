@@ -1,3 +1,6 @@
 .DS_Store
 *.bak.html
 工作台数据*.json
+node_modules/
+dist/
+.vite/
